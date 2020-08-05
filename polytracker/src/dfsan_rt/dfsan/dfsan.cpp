@@ -333,10 +333,18 @@ static char *dfsan_getenv(const char *name) {
 void dfsan_parse_env() {
   // Check for path to input file
   const char *target_file = dfsan_getenv("POLYPATH");
-  // Add option for, or specify hard-coded path for socket bytes.
-  if (target_file == NULL) {
+  /*if (target_file == NULL) {
     fprintf(stderr,
             "Unable to get required POLYPATH environment variable -- perhaps "
+            "it's not set?\n");
+    exit(1);
+  }*/
+
+  const char *target_port = dfsan_getenv("POLYPORT");
+  // Add option for, or specify hard-coded path for socket bytes.
+  if (target_port == NULL && target_file == NULL) {
+    fprintf(stderr,
+            "Unable to get required POLYPATH or POLYPORT environment variable -- perhaps "
             "it's not set?\n");
     exit(1);
   }
@@ -378,7 +386,15 @@ void dfsan_parse_env() {
   }
 
   // This is the part where we will specify a target pipe/socket/etc.
-  taint_manager->createNewTargetInfo(target_file, byte_start, byte_end - 1);
+  if (target_port != NULL) {
+    // Need to modify/create new function in taint manager for accepting
+    // a socket connection as a `target`. 
+    taint_manager->createNewTargetInfo(target_port, byte_start, byte_end - 1);
+  }
+  if (target_file != NULL) {
+    taint_manager->createNewTargetInfo(target_file, byte_start, byte_end - 1);
+  }
+
   // Special tracking for standard input
   taint_manager->createNewTargetInfo("stdin", 0, MAX_LABELS);
   taint_manager->createNewTaintInfo("stdin", stdin);

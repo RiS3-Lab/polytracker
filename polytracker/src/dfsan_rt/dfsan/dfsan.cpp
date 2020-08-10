@@ -32,6 +32,11 @@
 #include <stdint.h>
 #include <string.h>
 
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+
 #include <algorithm>
 #include <cstdlib>
 #include <fstream>
@@ -373,6 +378,34 @@ void dfsan_parse_env() {
     fclose(temp_file);
   }
 
+  ssize_t in_packet;
+
+  // POLYPORT needs to be properly processed.
+  if (target_port != NULL) {
+    // Connect to locahost port (POLYPORT).
+    int sock = 0;
+    struct sockaddr_in serv_addr;
+    char buffer[1024] = {0};
+
+    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+      fprintf(stderr, "Socket creation error\n");
+      exit(1);
+    }
+
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = atoi(target_port);
+
+    if (connect(sock, (struct sockaddr*) &serv_addr, sizeof(serv_addr)) < 0) {
+      fprintf(stderr, "Connection failed\n");
+      exit(1);
+    }
+
+    in_packet = read(sock, buffer, 1024);
+
+    // Close sockfd.
+    close(sock);
+  }
+
   const char *poly_output = dfsan_getenv("POLYOUTPUT");
   if (poly_output != NULL) {
     polytracker_output_filename = poly_output;
@@ -394,7 +427,7 @@ void dfsan_parse_env() {
   if (target_port != NULL) {
     // Need to modify/create new function in taint manager for accepting
     // a socket connection as a `target`. 
-    taint_manager->createNewTargetInfo(target_port, byte_start, byte_end - 1);
+    taint_manager->createNewTargetInfo((char*) in_packet, byte_start, byte_end - 1);
   }
   if (target_file != NULL) {
     taint_manager->createNewTargetInfo(target_file, byte_start, byte_end - 1);

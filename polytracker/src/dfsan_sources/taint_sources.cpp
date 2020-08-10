@@ -18,6 +18,9 @@
 #include <unistd.h>
 #include <vector>
 
+// Imports for aloja.
+#include <sys/socket.h>
+
 #define BYTE 1
 #define EXT_C_FUNC extern "C" __attribute__((visibility("default")))
 #define EXT_CXX_FUNC extern __attribute__((visibility("default")))
@@ -146,10 +149,22 @@ EXT_C_FUNC int __dfsw_fclose(FILE *fd, dfsan_label fd_label,
 EXT_C_FUNC ssize_t __dfsw_recv(int fd, void *buff, size_t size, int flags,
                                 dfsan_label fd_label, dfsan_label buff_label,
                                 dfsan_label size_label, dfsan_label *ret_label) {
-  // TODO.
+  // TODO: implement this as a wrapper to `recv` like how `read` is wrapped below.
   fprintf(stderr, "recv is not fully implemented yet");
 
-  return 0;
+  long read_start = lseek(fd,  0, SEEK_CUR);
+  ssize_t ret_val = recv(fd, buff, size, flags);
+
+  // Check if socket is being tracked.
+  if (taint_manager->isTracking(fd)) {
+    if (ret_val > 0) {
+      taint_manager->taintData(fd, (char *)buff, read_start, ret_val);
+    }
+    *ret_label = 0;
+  } else {
+    *ret_label = 0;
+  }
+  return ret_val;
 }
 
 EXT_C_FUNC ssize_t __dfsw_read(int fd, void *buff, size_t size,

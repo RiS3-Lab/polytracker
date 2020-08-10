@@ -136,6 +136,22 @@ EXT_C_FUNC int __dfsw_fclose(FILE *fd, dfsan_label fd_label,
   return ret;
 }
 
+/**
+ * RPW-Note: on inspection of how packets are read in Mosquitto
+ * it looks like in the end, it ends up using the `recv` call from
+ * `socket2.h`, which has the same first 3 args, but also includes
+ * flags (int).
+ * 
+ **/
+EXT_C_FUNC ssize_t __dfsw_recv(int fd, void *buff, size_t size, int flags,
+                                dfsan_label fd_label, dfsan_label buff_label,
+                                dfsan_label size_label, dfsan_label *ret_label) {
+  // TODO.
+  fprintf(stderr, "recv is not fully implemented yet");
+
+  return 0;
+}
+
 EXT_C_FUNC ssize_t __dfsw_read(int fd, void *buff, size_t size,
                                dfsan_label fd_label, dfsan_label buff_label,
                                dfsan_label size_label, dfsan_label *ret_label) {

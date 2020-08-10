@@ -152,13 +152,14 @@ EXT_C_FUNC ssize_t __dfsw_recv(int fd, void *buff, size_t size, int flags,
   // TODO: implement this as a wrapper to `recv` like how `read` is wrapped below.
   fprintf(stderr, "recv is not fully implemented yet");
 
-  long read_start = lseek(fd,  0, SEEK_CUR);
+  // Seeking, or calling pread(2) or pwrite(2) with a nonzero position is not supported on sockets.
+  //long read_start = lseek(fd,  0, SEEK_CUR); 
   ssize_t ret_val = recv(fd, buff, size, flags);
 
   // Check if socket is being tracked.
   if (taint_manager->isTracking(fd)) {
     if (ret_val > 0) {
-      taint_manager->taintData(fd, (char *)buff, read_start, ret_val);
+      taint_manager->taintData(fd, (char *)buff, 0, ret_val);
     }
     *ret_label = 0;
   } else {

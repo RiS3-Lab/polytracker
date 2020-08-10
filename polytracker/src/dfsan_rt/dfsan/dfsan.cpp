@@ -378,12 +378,10 @@ void dfsan_parse_env() {
     fclose(temp_file);
   }
 
-  ssize_t in_packet;
-
   // POLYPORT needs to be properly processed.
   if (target_port != NULL) {
     // Connect to locahost port (POLYPORT).
-    int sock = 0;
+    int sock = 0, in_packet;
     struct sockaddr_in serv_addr;
     char buffer[1024] = {0};
 
@@ -401,6 +399,10 @@ void dfsan_parse_env() {
     }
 
     in_packet = read(sock, buffer, 1024);
+    taint_manager->createNewTargetInfo((char*) in_packet, byte_start, byte_end - 1);
+    // Special tracking for standard input
+    taint_manager->createNewTargetInfo("stdin", 0, MAX_LABELS);
+    taint_manager->createNewTaintInfo("stdin", stdin);
 
     // Close sockfd.
     close(sock);
@@ -421,14 +423,6 @@ void dfsan_parse_env() {
     taint_node_ttl = atoi(env_ttl);
   }
 
-  // This is the part where we will specify a target pipe/socket/etc.
-  // Maybe this doesn't need to really be changed much afterall, since
-  // a socket is still just a file descriptor.
-  if (target_port != NULL) {
-    // Need to modify/create new function in taint manager for accepting
-    // a socket connection as a `target`. 
-    taint_manager->createNewTargetInfo((char*) in_packet, byte_start, byte_end - 1);
-  }
   if (target_file != NULL) {
     taint_manager->createNewTargetInfo(target_file, byte_start, byte_end - 1);
   }
@@ -437,6 +431,27 @@ void dfsan_parse_env() {
   taint_manager->createNewTargetInfo("stdin", 0, MAX_LABELS);
   taint_manager->createNewTaintInfo("stdin", stdin);
 }
+
+// Helper function for reading from a socket fd.
+int read_buf(int fd, uint8_t* buffer, const size_t bufsize) {
+  uint8_t* current = buffer;
+  size_t remaining = bufsize;
+
+  while (remaining > 0) {
+    ssize_t ret = read(fd, current, remaining);
+
+    if (ret == -1)
+      return -1;
+    else if (ret == 0) {
+      usleep(1000);
+    } else {
+      current += ret;
+      remaining -= ret;
+    }
+  }
+  return bufsize;
+}
+
 void dfsan_late_late_init() {
   taint_manager = new taintManager(taint_node_ttl, (char *)ShadowAddr(),
                                    (char *)ForestAddr());

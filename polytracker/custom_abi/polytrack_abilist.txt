@@ -39,6 +39,10 @@ fun:getdelim=custom
 #Is this right?
 fun:__getdelim=custom
 
+#Read-socket (aloja)
+fun:recv=uninstrumented
+fun:recv=custom
+
 #mmap stuff
 fun:mmap=custom
 fun:munmap=custom

@@ -386,6 +386,8 @@ void dfsan_parse_env() {
   }
 
   // This is the part where we will specify a target pipe/socket/etc.
+  // Maybe this doesn't need to really be changed much afterall, since
+  // a socket is still just a file descriptor.
   if (target_port != NULL) {
     // Need to modify/create new function in taint manager for accepting
     // a socket connection as a `target`. 

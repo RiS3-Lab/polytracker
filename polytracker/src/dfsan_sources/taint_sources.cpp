@@ -149,8 +149,6 @@ EXT_C_FUNC int __dfsw_fclose(FILE *fd, dfsan_label fd_label,
 EXT_C_FUNC ssize_t __dfsw_recv(int fd, void *buff, size_t size, int flags,
                                 dfsan_label fd_label, dfsan_label buff_label,
                                 dfsan_label size_label, dfsan_label *ret_label) {
-  // TODO: implement this as a wrapper to `recv` like how `read` is wrapped below.
-  fprintf(stderr, "recv is not fully implemented yet");
 
   // Seeking, or calling pread(2) or pwrite(2) with a nonzero position is not supported on sockets.
   //long read_start = lseek(fd,  0, SEEK_CUR); 

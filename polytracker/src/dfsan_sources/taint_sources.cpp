@@ -154,6 +154,9 @@ EXT_C_FUNC ssize_t __dfsw_recv(int fd, void *buff, size_t size, int flags,
   //long read_start = lseek(fd,  0, SEEK_CUR); 
   ssize_t ret_val = recv(fd, buff, size, flags);
 
+  // Debug test.
+  fprintf(stderr, "recv: fd is %d, buffer addr is %p, size is %ld\n", fd, buff, size);
+
   // Check if socket is being tracked.
   if (taint_manager->isTracking(fd)) {
     if (ret_val > 0) {

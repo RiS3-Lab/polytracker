@@ -349,26 +349,29 @@ void dfsan_parse_env() {
     exit(1);
   }
 
-  FILE *temp_file = fopen(target_file, "r");
-  if (temp_file == NULL) {
-    fprintf(stderr, "Error: target file \"%s\" could not be opened: %s\n",
-            target_file, strerror(errno));
-    exit(1);
-  }
-
   uint64_t byte_start = 0, byte_end = 0;
   const char *poly_start = dfsan_getenv("POLYSTART");
   if (poly_start != nullptr) {
     byte_start = atoi(poly_start);
   }
 
-  fseek(temp_file, 0L, SEEK_END);
-  byte_end = ftell(temp_file);
-  const char *poly_end = dfsan_getenv("POLYEND");
-  if (poly_end != nullptr) {
-    byte_end = atoi(poly_end);
+  // POLYPATH is no longer required.
+  if (target_file != NULL) {
+    FILE *temp_file = fopen(target_file, "r");
+    if (temp_file == NULL) {
+      fprintf(stderr, "Error: target file \"%s\" could not be opened: %s\n",
+              target_file, strerror(errno));
+      exit(1);
+    }
+
+    fseek(temp_file, 0L, SEEK_END);
+    byte_end = ftell(temp_file);
+    const char *poly_end = dfsan_getenv("POLYEND");
+    if (poly_end != nullptr) {
+      byte_end = atoi(poly_end);
+    }
+    fclose(temp_file);
   }
-  fclose(temp_file);
 
   const char *poly_output = dfsan_getenv("POLYOUTPUT");
   if (poly_output != NULL) {

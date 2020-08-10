@@ -399,7 +399,9 @@ void dfsan_parse_env() {
     }
 
     in_packet = read(sock, buffer, 1024);
-    taint_manager->createNewTargetInfo((char*) in_packet, byte_start, byte_end - 1);
+    // Just testing for now.
+    fprintf(stderr, "Tainting packet: %s\n", buffer);
+    taint_manager->createNewTargetInfo(buffer, byte_start, byte_end - 1);
     // Special tracking for standard input
     taint_manager->createNewTargetInfo("stdin", 0, MAX_LABELS);
     taint_manager->createNewTaintInfo("stdin", stdin);

@@ -29,14 +29,13 @@
 #include "sanitizer_common/sanitizer_flags.h"
 #include "sanitizer_common/sanitizer_libc.h"
 // Only include this in here, headers are shared via dfsan.h
-#include <stdint.h>
-#include <string.h>
-
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <unistd.h>
 
 #include <algorithm>
 #include <cstdlib>
@@ -338,9 +337,9 @@ static char *dfsan_getenv(const char *name) {
 
 void *get_in_addr(struct sockaddr *sa) {
   if (sa->sa_family == AF_INET) {
-    return &(((struct sockaddr_in*)sa)->sin_addr);
+    return &(((struct sockaddr_in *)sa)->sin_addr);
   }
-  return &(((struct sockaddr_in6*)sa)->sin6_addr);
+  return &(((struct sockaddr_in6 *)sa)->sin6_addr);
 }
 
 void dfsan_parse_env() {
@@ -357,7 +356,8 @@ void dfsan_parse_env() {
   // Add option for, or specify hard-coded path for socket bytes.
   if (target_port == NULL && target_file == NULL) {
     fprintf(stderr,
-            "Unable to get required POLYPATH or POLYPORT environment variable -- perhaps "
+            "Unable to get required POLYPATH or POLYPORT environment variable "
+            "-- perhaps "
             "it's not set?\n");
     exit(1);
   }
@@ -386,65 +386,57 @@ void dfsan_parse_env() {
     fclose(temp_file);
   }
 
-  // POLYPORT needs to be properly processed.
   if (target_port != NULL) {
-    int sockfd, numbytes;
-    char buf[1024];
-    struct addrinfo hints, *servinfo, *p;
-    int rv;
-    char s[INET6_ADDRSTRLEN];
+    // Lambda function for our background thread.
+    auto listener = [byte_start, byte_end](void) {
+      // std::cout << "Test" << std::endl;
 
-    memset(&hints, 0, sizeof hints);
-    hints.ai_family = AF_UNSPEC;
-    hints.ai_socktype = SOCK_STREAM;
+      int server_fd, sockfd, valread;
+      struct sockaddr_in address;
+      int opt = 1;
+      int addrlen = sizeof(address);
+      char buffer[1024] = {0};
 
-    if ((rv = getaddrinfo("127.0.0.1", target_port, &hints, &servinfo)) != 0) {
-        fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
-        exit(1);
-    }
+      // Creating socket file descriptor.
+      if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
+        perror("socket failed");
+        exit(EXIT_FAILURE);
+      }
 
-    // Loop through all the results and connect to the first we can.
-    for(p = servinfo; p != NULL; p = p->ai_next) {
-        if ((sockfd = socket(p->ai_family, p->ai_socktype,
-                p->ai_protocol)) == -1) {
-            perror("client: socket");
-            continue;
-        }
+      if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt))) {
+        perror("setsockopt");
+        exit(EXIT_FAILURE);
+      }
 
-        if (connect(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
-            close(sockfd);
-            perror("client: connect");
-            continue;
-        }
+      address.sin_family = AF_INET;
+      address.sin_addr.s_addr = INADDR_ANY;
+      address.sin_port = htons(PORT);
 
-        break;
-    }
+      if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) {
+        perror("bind failed");
+        exit(EXIT_FAILURE);
+      }
+      if (listen(server_fd, 3) < 0) {
+        perror("listen");
+        exit(EXIT_FAILURE);
+      }
+      if ((sockfd = accept(server_fd, (struct sockaddr *)&address,
+                           (socklen_t *)&addrlen)) < 0) {
+        perror("accept");
+        exit(EXIT_FAILURE);
+      }
 
-    if (p == NULL) {
-      fprintf(stderr, "client: failed to connect\n");
-      exit(1);
-    }
+      valread = read(sockfd, buffer, 1024);
+      printf("%s\n", buffer);
 
-    inet_ntop(p->ai_family, get_in_addr((struct sockaddr *)p->ai_addr),
-            s, sizeof s);
-    printf("client: connecting to %s\n", s);
+      taint_manager->createNewTargetInfo(buffer, byte_start, byte_end - 1);
+      // Special tracking for standard input
+      taint_manager->createNewTargetInfo("stdin", 0, MAX_LABELS);
+      taint_manager->createNewTaintInfo("stdin", stdin);
 
-    freeaddrinfo(servinfo);
-
-    if ((numbytes = recv(sockfd, buf, 1024, 0)) == -1) {
-      perror("recv");
-      exit(1);
-    }
-
-    buf[numbytes] = '\0';
-    printf("client: received '%s'\n", buf);
-
-    taint_manager->createNewTargetInfo(buf, byte_start, byte_end - 1);
-    // Special tracking for standard input
-    //taint_manager->createNewTargetInfo("stdin", 0, MAX_LABELS);
-    //taint_manager->createNewTaintInfo("stdin", stdin);
-
-    close(sockfd);
+      // Close socket fd.
+      close(sockfd);
+    };
   }
 
   // POLYPORT needs to be properly processed.
@@ -510,8 +502,8 @@ void dfsan_parse_env() {
 }
 
 // Helper function for reading from a socket fd.
-int read_buf(int fd, uint8_t* buffer, const size_t bufsize) {
-  uint8_t* current = buffer;
+int read_buf(int fd, uint8_t *buffer, const size_t bufsize) {
+  uint8_t *current = buffer;
   size_t remaining = bufsize;
 
   while (remaining > 0) {

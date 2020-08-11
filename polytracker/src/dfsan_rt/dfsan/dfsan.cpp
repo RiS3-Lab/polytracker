@@ -362,7 +362,8 @@ void dfsan_parse_env() {
     exit(1);
   }
 
-  uint64_t byte_start = 0, byte_end = 0;
+  //uint64_t byte_start = 0, byte_end = 0;
+  uint64_t byte_start = 0, byte_end = 1024;
   const char *poly_start = dfsan_getenv("POLYSTART");
   if (poly_start != nullptr) {
     byte_start = atoi(poly_start);
@@ -440,6 +441,8 @@ void dfsan_parse_env() {
   if (target_port != NULL) {
     // Start thread/etc.
     std::thread sockListener(listener, atoi(target_port));
+
+    sockListener.join();
   }
 
   // POLYPORT needs to be properly processed.

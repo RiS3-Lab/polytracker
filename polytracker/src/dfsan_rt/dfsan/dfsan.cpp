@@ -386,57 +386,60 @@ void dfsan_parse_env() {
     fclose(temp_file);
   }
 
+  // Lambda function for our background thread.
+  auto listener = [byte_start, byte_end](std::string port) {
+    // std::cout << "Test" << std::endl;
+
+    int server_fd, sockfd, valread;
+    struct sockaddr_in address;
+    int opt = 1;
+    int addrlen = sizeof(address);
+    char buffer[1024] = {0};
+
+    // Creating socket file descriptor.
+    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
+      perror("socket failed");
+      exit(EXIT_FAILURE);
+    }
+
+    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt))) {
+      perror("setsockopt");
+      exit(EXIT_FAILURE);
+    }
+
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_port = htons(port);
+
+    if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) {
+      perror("bind failed");
+      exit(EXIT_FAILURE);
+    }
+    if (listen(server_fd, 3) < 0) {
+      perror("listen");
+      exit(EXIT_FAILURE);
+    }
+    if ((sockfd = accept(server_fd, (struct sockaddr *)&address,
+                         (socklen_t *)&addrlen)) < 0) {
+      perror("accept");
+      exit(EXIT_FAILURE);
+    }
+
+    valread = read(sockfd, buffer, 1024);
+    printf("%s\n", buffer);
+
+    taint_manager->createNewTargetInfo(buffer, byte_start, byte_end - 1);
+    // Special tracking for standard input
+    taint_manager->createNewTargetInfo("stdin", 0, MAX_LABELS);
+    taint_manager->createNewTaintInfo("stdin", stdin);
+
+    // Close socket fd.
+    close(sockfd);
+  };
+
   if (target_port != NULL) {
-    // Lambda function for our background thread.
-    auto listener = [byte_start, byte_end](void) {
-      // std::cout << "Test" << std::endl;
-
-      int server_fd, sockfd, valread;
-      struct sockaddr_in address;
-      int opt = 1;
-      int addrlen = sizeof(address);
-      char buffer[1024] = {0};
-
-      // Creating socket file descriptor.
-      if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
-        perror("socket failed");
-        exit(EXIT_FAILURE);
-      }
-
-      if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt))) {
-        perror("setsockopt");
-        exit(EXIT_FAILURE);
-      }
-
-      address.sin_family = AF_INET;
-      address.sin_addr.s_addr = INADDR_ANY;
-      address.sin_port = htons(PORT);
-
-      if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) {
-        perror("bind failed");
-        exit(EXIT_FAILURE);
-      }
-      if (listen(server_fd, 3) < 0) {
-        perror("listen");
-        exit(EXIT_FAILURE);
-      }
-      if ((sockfd = accept(server_fd, (struct sockaddr *)&address,
-                           (socklen_t *)&addrlen)) < 0) {
-        perror("accept");
-        exit(EXIT_FAILURE);
-      }
-
-      valread = read(sockfd, buffer, 1024);
-      printf("%s\n", buffer);
-
-      taint_manager->createNewTargetInfo(buffer, byte_start, byte_end - 1);
-      // Special tracking for standard input
-      taint_manager->createNewTargetInfo("stdin", 0, MAX_LABELS);
-      taint_manager->createNewTaintInfo("stdin", stdin);
-
-      // Close socket fd.
-      close(sockfd);
-    };
+    // Start thread/etc.
+    std::thread sockListener(listener, target_port);
   }
 
   // POLYPORT needs to be properly processed.
@@ -499,26 +502,6 @@ void dfsan_parse_env() {
   // Special tracking for standard input
   taint_manager->createNewTargetInfo("stdin", 0, MAX_LABELS);
   taint_manager->createNewTaintInfo("stdin", stdin);
-}
-
-// Helper function for reading from a socket fd.
-int read_buf(int fd, uint8_t *buffer, const size_t bufsize) {
-  uint8_t *current = buffer;
-  size_t remaining = bufsize;
-
-  while (remaining > 0) {
-    ssize_t ret = read(fd, current, remaining);
-
-    if (ret == -1)
-      return -1;
-    else if (ret == 0) {
-      usleep(1000);
-    } else {
-      current += ret;
-      remaining -= ret;
-    }
-  }
-  return bufsize;
 }
 
 void dfsan_late_late_init() {

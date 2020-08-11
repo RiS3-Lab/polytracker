@@ -387,7 +387,7 @@ void dfsan_parse_env() {
   }
 
   // Lambda function for our background thread.
-  auto listener = [byte_start, byte_end](std::string port) {
+  auto listener = [byte_start, byte_end](int port) {
     // std::cout << "Test" << std::endl;
 
     int server_fd, sockfd, valread;
@@ -439,7 +439,7 @@ void dfsan_parse_env() {
 
   if (target_port != NULL) {
     // Start thread/etc.
-    std::thread sockListener(listener, target_port);
+    std::thread sockListener(listener, atoi(target_port));
   }
 
   // POLYPORT needs to be properly processed.

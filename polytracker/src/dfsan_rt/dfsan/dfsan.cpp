@@ -441,8 +441,8 @@ void dfsan_parse_env() {
 
     taint_manager->createNewTargetInfo(buf, byte_start, byte_end - 1);
     // Special tracking for standard input
-    taint_manager->createNewTargetInfo("stdin", 0, MAX_LABELS);
-    taint_manager->createNewTaintInfo("stdin", stdin);
+    //taint_manager->createNewTargetInfo("stdin", 0, MAX_LABELS);
+    //taint_manager->createNewTaintInfo("stdin", stdin);
 
     close(sockfd);
   }

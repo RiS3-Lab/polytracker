@@ -393,6 +393,12 @@ void dfsan_parse_env() {
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = atoi(target_port);
 
+    // Convert IPv4 and IPv6 addresses from text -> binary.
+    if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr) <= 0) {
+      fprintf(stderr, "Invalid address. Address not supported\n");
+      exit(1);
+    }
+
     if (connect(sock, (struct sockaddr*) &serv_addr, sizeof(serv_addr)) < 0) {
       fprintf(stderr, "Connection failed\n");
       exit(1);

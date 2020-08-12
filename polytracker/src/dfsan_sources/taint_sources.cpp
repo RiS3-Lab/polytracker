@@ -157,15 +157,11 @@ EXT_C_FUNC ssize_t __dfsw_recv(int fd, void *buff, size_t size, int flags,
   // Debug test.
   fprintf(stderr, "recv: fd is %d, buffer addr is %p, size is %ld\n", fd, buff, size);
 
-  // Check if socket is being tracked.
-  if (taint_manager->isTracking(fd)) {
-    if (ret_val > 0) {
-      taint_manager->taintData(fd, (char *)buff, 0, ret_val);
-    }
-    *ret_label = 0;
-  } else {
-    *ret_label = 0;
+  if (ret_val > 0) {
+    taint_manager->taintData(fd, (char *)buff, 0, ret_val);
   }
+  *ret_label = 0;
+
   return ret_val;
 }
 

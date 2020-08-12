@@ -356,10 +356,9 @@ void dfsan_parse_env() {
   // Add option for, or specify hard-coded path for socket bytes.
   if (target_port == NULL && target_file == NULL) {
     fprintf(stderr,
-            "Unable to get required POLYPATH or POLYPORT environment variable "
-            "-- perhaps "
-            "it's not set?\n");
-    exit(1);
+            "Unable to get POLYPATH or POLYPORT environment variable "
+            "-- relying on instrumentation in target binary\n");
+    //exit(1);
   }
 
   //uint64_t byte_start = 0, byte_end = 0;

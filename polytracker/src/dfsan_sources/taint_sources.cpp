@@ -144,7 +144,6 @@ EXT_C_FUNC int __dfsw_fclose(FILE *fd, dfsan_label fd_label,
  * it looks like in the end, it ends up using the `recv` call from
  * `socket2.h`, which has the same first 3 args, but also includes
  * flags (int).
- * 
  **/
 EXT_C_FUNC ssize_t __dfsw_recv(int fd, void *buff, size_t size, int flags,
                                 dfsan_label fd_label, dfsan_label buff_label,
@@ -155,7 +154,8 @@ EXT_C_FUNC ssize_t __dfsw_recv(int fd, void *buff, size_t size, int flags,
   ssize_t ret_val = recv(fd, buff, size, flags);
 
   // Debug test.
-  fprintf(stderr, "recv: fd is %d, buffer addr is %p, size is %ld\n", fd, buff, size);
+  printf("recv: fd is %d, buffer addr is %p, size is %ld\n", fd, buff, size);
+  std::cout << "Got a `recv` call to instrument!" << std::endl;
 
   if (ret_val > 0) {
     taint_manager->taintData(fd, (char *)buff, 0, ret_val);

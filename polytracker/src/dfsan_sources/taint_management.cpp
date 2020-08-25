@@ -30,6 +30,8 @@ void taintSourceManager::createNewTargetInfo(std::string fname, int start,
   targetInfo *target_info = new targetInfo(fname, start, end);
   name_target_map[fname] = target_info;
   taint_info_mutex.unlock();
+  //Debug output
+  std::cout << "Arrived the end of createNewTargetInfo function." << std::endl;
 }
 
 bool taintSourceManager::createNewTaintInfo(std::string name, int fd) {
@@ -42,6 +44,8 @@ bool taintSourceManager::createNewTaintInfo(std::string name, int fd) {
   targ_info->is_open = true;
   fd_target_map[fd] = targ_info;
   taint_info_mutex.unlock();
+  //Debug output
+  std::cout << "Arrived the end of createNewTargetInfo function." << std::endl;
   return true;
 }
 

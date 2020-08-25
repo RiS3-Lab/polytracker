@@ -20,6 +20,13 @@
 
 // Imports for aloja.
 #include <sys/socket.h>
+#include "../mosquitto/config.h"
+#include "../mosquitto/lib/logging_mosq.h"
+#include "../mosquitto/lib/memory_mosq.h"
+#include "../mosquitto/lib/mqtt_protocol.h"
+#include "../mosquitto/lib/net_mosq.h"
+#include "../mosquitto/lib/time_mosq.h"
+#include "../mosquitto/lib/util_mosq.h"
 
 #define BYTE 1
 #define EXT_C_FUNC extern "C" __attribute__((visibility("default")))
@@ -157,8 +164,11 @@ EXT_C_FUNC ssize_t __dfsw_recv(int fd, void *buff, size_t size, int flags,
   printf("recv: fd is %d, buffer addr is %p, size is %ld\n", fd, buff, size);
   std::cout << "Got a `recv` call to instrument!" << std::endl;
 
+  taint_manager->createNewTargetInfo((char *)buff, 0, size);
   if (ret_val > 0) {
+    
     taint_manager->taintData(fd, (char *)buff, 0, ret_val);
+    *ret_label = taint_manager->createReturnLabel(size, taint_manager->getTargetInfo(fd)->target_name);
   }
   *ret_label = 0;
 
@@ -168,24 +178,51 @@ EXT_C_FUNC ssize_t __dfsw_recv(int fd, void *buff, size_t size, int flags,
 EXT_C_FUNC ssize_t __dfsw_read(int fd, void *buff, size_t size,
                                dfsan_label fd_label, dfsan_label buff_label,
                                dfsan_label size_label, dfsan_label *ret_label) {
-  long read_start = lseek(fd, 0, SEEK_CUR);
+  // long read_start = lseek(fd, 0, SEEK_CUR);
   ssize_t ret_val = read(fd, buff, size);
 
-#ifdef DEBUG_INFO
-  fprintf(stderr, "read: fd is %d, buffer addr is %p, size is %ld\n", fd, buff,
-          size);
-#endif
-  // Check if we are tracking this fd.
-  if (taint_manager->isTracking(fd)) {
-    if (ret_val > 0) {
-      taint_manager->taintData(fd, (char *)buff, read_start, ret_val);
-    }
-    *ret_label = 0;
-  } else {
-    *ret_label = 0;
+  // Debug test.
+  printf("read: fd is %d, buffer addr is %p, size is %ld\n", fd, buff, size);
+  std::cout << "Got a `read` call to instrument!" << std::endl;
+
+  taint_manager->createNewTargetInfo((char *)buff, 0, size);
+  // Debug output.
+  std::cout << (char *)buff << std::endl;
+
+  if (ret_val > 0) {
+    
+    taint_manager->taintData(fd, (char *)buff, 0, ret_val);
+    // Debug output.
+    std::cout << "Finished Tainting" << std::endl;
+    // *ret_label = taint_manager->createReturnLabel(size, taint_manager->getTargetInfo(fd)->target_name);
+    // Debug output.
+    std::cout << "Finished Lable Creating" << std::endl;
   }
+  *ret_label = 0;
+
   return ret_val;
 }
+
+// EXT_C_FUNC ssize_t __dfsw_net__read(struct mosquitto *mosq, void *buff, size_t size,
+//                                dfsan_label fd_label, dfsan_label buff_label,
+//                                dfsan_label size_label, dfsan_label *ret_label) {
+//   // long read_start = lseek(fd, 0, SEEK_CUR);
+//   ssize_t ret_val = net__read(mosq, buff, size);
+
+//   // Debug test.
+//   printf("recv: fd is %d, buffer addr is %p, size is %ld\n", mosq->sock, buff, size);
+//   std::cout << "Got a `net__read` call to instrument!" << std::endl;
+
+//   taint_manager->createNewTargetInfo((char *)buff, 0, size - 1);
+//   if (ret_val > 0) {
+    
+//     taint_manager->taintData(mosq->sock, (char *)buff, 0, ret_val);
+//     *ret_label = taint_manager->createReturnLabel(size - 1, taint_manager->getTargetInfo(mosq->sock)->target_name);
+//   }
+//   *ret_label = 0;
+
+//   return ret_val;
+// }
 
 EXT_C_FUNC ssize_t __dfsw_pread(int fd, void *buf, size_t count, off_t offset,
                                 dfsan_label fd_label, dfsan_label buf_label,

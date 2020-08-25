@@ -205,8 +205,27 @@ void taintManager::outputRawTaintSets() {
     }
   }
   std::string output_string = outfile + "_process_set.json";
+
+  //Debug output
+  std::cout << "Start to write JSON file." << std::endl;
+
+  //Tongwei: Each packet generates one file.
+  if (FILE *resultfile = fopen(output_string.c_str(), "r")) {
+    fclose(resultfile);
+    int random = rand()%100;
+    output_string = std::to_string(random) + output_string;
+  }
+
   std::ofstream o(output_string);
+
+  //Debug output
+  // std::cout << output_json << std::endl;
+
   o << std::setw(4) << output_json;
+
+  //Debug output
+  std::cout << "JSON file is created now." << std::endl;
+
   o.close();
 }
 
@@ -247,6 +266,8 @@ dfsan_label taintManager::createCanonicalLabel(int file_byte_offset,
   new_node->decay = taint_node_ttl;
   canonical_mapping[name].push_back(
       std::pair<dfsan_label, int>(new_label, file_byte_offset));
+  //Debug output
+  std::cout << "Arrived the end of createCanonicalLabel function." << std::endl;
   return new_label;
 }
 
@@ -270,6 +291,8 @@ bool taintManager::taintData(FILE* fd, char* mem, int offset, int len) {
     return false;
   }
   targetInfo* targ_info = getTargetInfo(fd);
+  //Debug output
+  std::cout << "Arrived taintData function." << std::endl;
   taintTargetRange(mem, offset, len, targ_info->byte_start, targ_info->byte_end,
                    targ_info->target_name);
   taint_prop_lock.unlock();
@@ -306,6 +329,8 @@ void taintManager::taintTargetRange(char* mem, int offset, int len,
     if (byte_end < 0 ||
         (curr_byte_num >= byte_start && curr_byte_num <= byte_end)) {
       dfsan_label new_label = createCanonicalLabel(curr_byte_num, name);
+      //Debug output
+      std::cout << "Finished Canonical Lable Creating." << std::endl;
       dfsan_set_label(new_label, curr_byte, TAINT_GRANULARITY);
       if (taint_offset_start == -1) {
         taint_offset_start = curr_byte_num;

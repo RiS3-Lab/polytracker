@@ -112,6 +112,8 @@ void taintManager::resetFrame(int* index) {
 
 void taintManager::addJsonVersion() {
   output_json["version"] = POLYTRACKER_VERSION;
+  //Debug output
+  std::cout << "Get version." << std::endl;
 }
 
 void taintManager::addJsonRuntimeCFG() {
@@ -123,8 +125,9 @@ void taintManager::addJsonRuntimeCFG() {
     
     //Debug output
     // std::cout << j_set << std::endl;
-
   }
+  //Debug output
+  std::cout << "Get runtime_cfg." << std::endl;
 }
 
 void taintManager::setOutputFilename(std::string out) { outfile = out; }
@@ -156,13 +159,15 @@ void taintManager::addTaintSources() {
         targ_info->byte_start;
     output_json["taint_sources"][it->first]["end_byte"] = targ_info->byte_end;
     //Debug outputs
-    std::cout << output_json["taint_sources"] << std::endl;
+    // std::cout << output_json["taint_sources"] << std::endl;
 
     auto target_metadata = getMetadata(targ_info);
     if (!target_metadata.is_null()) {
       output_json["taint_sources"][it->first]["metadata"] = target_metadata;
     }
   }
+  //Debug output
+  std::cout << "Get taint_sources." << std::endl;
 }
 
 void taintManager::addCanonicalMapping() {
@@ -172,6 +177,8 @@ void taintManager::addCanonicalMapping() {
     json canonical_map(map_list);
     output_json["canonical_mapping"][it->first] = canonical_map;
   }
+  //Debug output
+  std::cout << "Get canonical_mapping." << std::endl;
 }
 
 void taintManager::addTaintedBlocks() {
@@ -180,6 +187,8 @@ void taintManager::addTaintedBlocks() {
     json tainted_chunks(it->second);
     output_json["tainted_input_blocks"][it->first] = tainted_chunks;
   }
+  //Debug output
+  std::cout << "Get tainted_input_blocks." << std::endl;
 }
 
 void taintManager::outputRawTaintSets() {
@@ -187,6 +196,9 @@ void taintManager::outputRawTaintSets() {
   // NOTE: Whenever the output JSON format changes, make sure to:
   //       (1) Up the version number in /polytracker/include/polytracker/polytracker.h; and
   //       (2) Add support for parsing the changes in /polytracker/polytracker.py
+  
+  //Debug output
+  std::cout << "Start to prepare contents of JSON file." << std::endl;
   addJsonVersion();
   addJsonRuntimeCFG();
   addTaintSources();
@@ -211,6 +223,9 @@ void taintManager::outputRawTaintSets() {
       output_json["tainted_functions"][it->first]["cmp_bytes"] = cmp_byte_set;
     }
   }
+  //Debug output
+  std::cout << "Get tainted_functions." << std::endl;
+
   std::string output_string = outfile + "_process_set.json";
 
   //Debug output

@@ -45,7 +45,7 @@ bool taintSourceManager::createNewTaintInfo(std::string name, int fd) {
   fd_target_map[fd] = targ_info;
   taint_info_mutex.unlock();
   //Debug output
-  std::cout << "Arrived the end of createNewTargetInfo function." << std::endl;
+  std::cout << "Arrived the end of createNewTaintInfo function." << std::endl;
   return true;
 }
 

@@ -120,6 +120,10 @@ void taintManager::addJsonRuntimeCFG() {
   for (cfg_it = runtime_cfg.begin(); cfg_it != runtime_cfg.end(); cfg_it++) {
     json j_set(cfg_it->second);
     output_json["runtime_cfg"][cfg_it->first] = j_set;
+    
+    //Debug output
+    // std::cout << j_set << std::endl;
+
   }
 }
 
@@ -219,9 +223,23 @@ void taintManager::outputRawTaintSets() {
   std::ofstream o(output_string);
 
   //Debug output
-  // std::cout << output_json << std::endl;
+  // for (size_t i = 0; i < output_json.size(); ++i)
+  // {
+  //   std::cout << i << " " << std::hex << static_cast<int>(static_cast<uint8_t>(output_json[i])) << std::endl;
+  // }
 
-  o << std::setw(4) << output_json;
+  // std::cout << output_json["runtime_cfg"] << std::endl;
+
+  try
+  {
+    o << std::setw(4) << output_json;
+  }
+  catch(const std::exception& e)
+  {
+    std::cerr << e.what() << '\n';
+  }
+  
+  
 
   //Debug output
   std::cout << "JSON file is created now." << std::endl;

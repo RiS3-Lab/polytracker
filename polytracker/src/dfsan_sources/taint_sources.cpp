@@ -20,13 +20,13 @@
 
 // Imports for aloja.
 #include <sys/socket.h>
-#include "../mosquitto/config.h"
-#include "../mosquitto/lib/logging_mosq.h"
-#include "../mosquitto/lib/memory_mosq.h"
-#include "../mosquitto/lib/mqtt_protocol.h"
-#include "../mosquitto/lib/net_mosq.h"
-#include "../mosquitto/lib/time_mosq.h"
-#include "../mosquitto/lib/util_mosq.h"
+// #include "../mosquitto/config.h"
+// #include "../mosquitto/lib/logging_mosq.h"
+// #include "../mosquitto/lib/memory_mosq.h"
+// #include "../mosquitto/lib/mqtt_protocol.h"
+// #include "../mosquitto/lib/net_mosq.h"
+// #include "../mosquitto/lib/time_mosq.h"
+// #include "../mosquitto/lib/util_mosq.h"
 
 #define BYTE 1
 #define EXT_C_FUNC extern "C" __attribute__((visibility("default")))

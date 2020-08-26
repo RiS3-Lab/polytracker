@@ -185,10 +185,15 @@ EXT_C_FUNC ssize_t __dfsw_read(int fd, void *buff, size_t size,
   // Debug test.
   printf("read: fd is %d, buffer addr is %p, size is %ld\n", fd, buff, size);
   std::cout << "Got a `read` call to instrument!" << std::endl;
-
+  // The fname is random number.
+  // int random = rand()%100;
+  // std::string name = std::to_string(random);
+  
+  // The fname is buffer addr.
   std::stringstream ss;
   ss << buff;
   std::string name = ss.str();
+
   taint_manager->createNewTargetInfo(name, 0, size);
   // Debug output.
   std::cout << name << std::endl;

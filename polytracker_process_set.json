@@ -402,8 +402,22 @@
         ]
     },
     "taint_sources": {
-        "": {
+        "0x55b11dfc5f70": {
+            "end_byte": 18,
+            "start_byte": 0
+        },
+        "0x55b11dfc60c0": {
+            "end_byte": 34,
+            "start_byte": 0
+        },
+        "0x7fff66f8ab3f": {
             "end_byte": 1,
             "start_byte": 0
         },
-        "
+        "stdin": {
+            "end_byte": 2147483646,
+            "start_byte": 0
+        }
+    },
+    "version": "2.1.0"
+}

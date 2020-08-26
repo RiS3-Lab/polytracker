@@ -155,6 +155,9 @@ void taintManager::addTaintSources() {
     output_json["taint_sources"][it->first]["start_byte"] =
         targ_info->byte_start;
     output_json["taint_sources"][it->first]["end_byte"] = targ_info->byte_end;
+    //Debug outputs
+    std::cout << output_json["taint_sources"] << std::endl;
+
     auto target_metadata = getMetadata(targ_info);
     if (!target_metadata.is_null()) {
       output_json["taint_sources"][it->first]["metadata"] = target_metadata;
@@ -227,8 +230,14 @@ void taintManager::outputRawTaintSets() {
   // {
   //   std::cout << i << " " << std::hex << static_cast<int>(static_cast<uint8_t>(output_json[i])) << std::endl;
   // }
-
-  // std::cout << output_json["runtime_cfg"] << std::endl;
+  // try
+  // {
+  //   std::cout << output_json["taint_sources"] << std::endl;
+  // }
+  // catch(const std::exception& e)
+  // {
+  //   std::cerr << e.what() << '\n';
+  // }
 
   try
   {
@@ -296,6 +305,8 @@ bool taintManager::taintData(int fd, char* mem, int offset, int len) {
     return false;
   }
   targetInfo* targ_info = getTargetInfo(fd);
+  //Debug output
+  std::cout << "Arrived taintData function." << std::endl;
   taintTargetRange(mem, offset, len, targ_info->byte_start, targ_info->byte_end,
                    targ_info->target_name);
   taint_prop_lock.unlock();
@@ -309,8 +320,6 @@ bool taintManager::taintData(FILE* fd, char* mem, int offset, int len) {
     return false;
   }
   targetInfo* targ_info = getTargetInfo(fd);
-  //Debug output
-  std::cout << "Arrived taintData function." << std::endl;
   taintTargetRange(mem, offset, len, targ_info->byte_start, targ_info->byte_end,
                    targ_info->target_name);
   taint_prop_lock.unlock();

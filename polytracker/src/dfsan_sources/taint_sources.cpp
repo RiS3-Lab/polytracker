@@ -20,6 +20,7 @@
 
 // Imports for aloja.
 #include <sys/socket.h>
+#include <sstream>
 // #include "../mosquitto/config.h"
 // #include "../mosquitto/lib/logging_mosq.h"
 // #include "../mosquitto/lib/memory_mosq.h"
@@ -185,9 +186,12 @@ EXT_C_FUNC ssize_t __dfsw_read(int fd, void *buff, size_t size,
   printf("read: fd is %d, buffer addr is %p, size is %ld\n", fd, buff, size);
   std::cout << "Got a `read` call to instrument!" << std::endl;
 
-  taint_manager->createNewTargetInfo((char *)buff, 0, size);
+  std::stringstream ss;
+  ss << buff;
+  std::string name = ss.str();
+  taint_manager->createNewTargetInfo(name, 0, size);
   // Debug output.
-  std::cout << (char *)buff << std::endl;
+  std::cout << name << std::endl;
 
   if (ret_val > 0) {
     

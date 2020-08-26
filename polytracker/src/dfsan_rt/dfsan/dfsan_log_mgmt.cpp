@@ -297,6 +297,21 @@ dfsan_label taintManager::createCanonicalLabel(int file_byte_offset,
   std::cout << "Arrived the end of createCanonicalLabel function." << std::endl;
   return new_label;
 }
+//Modified for Aloja
+bool taintManager::taintData(int fd, std::string name, char* mem, int offset, int len) {
+  taint_prop_lock.lock();
+  if (!isTracking(name)) {
+    taint_prop_lock.unlock();
+    return false;
+  }
+  targetInfo* targ_info = getTargetInfo(name);
+  //Debug output
+  std::cout << "Arrived taintData function." << std::endl;
+  taintTargetRange(mem, offset, len, targ_info->byte_start, targ_info->byte_end,
+                   targ_info->target_name);
+  taint_prop_lock.unlock();
+  return true;
+}
 
 bool taintManager::taintData(int fd, char* mem, int offset, int len) {
   taint_prop_lock.lock();
@@ -305,8 +320,6 @@ bool taintManager::taintData(int fd, char* mem, int offset, int len) {
     return false;
   }
   targetInfo* targ_info = getTargetInfo(fd);
-  //Debug output
-  std::cout << "Arrived taintData function." << std::endl;
   taintTargetRange(mem, offset, len, targ_info->byte_start, targ_info->byte_end,
                    targ_info->target_name);
   taint_prop_lock.unlock();

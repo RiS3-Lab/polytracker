@@ -34,6 +34,7 @@ void taintSourceManager::createNewTargetInfo(std::string fname, int start,
   std::cout << "Arrived the end of createNewTargetInfo function." << std::endl;
 }
 
+// Modfied for Aloja
 bool taintSourceManager::createNewTaintInfo(std::string name, int fd) {
   taint_info_mutex.lock();
   if (name_target_map.find(name) == name_target_map.end()) {

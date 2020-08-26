@@ -200,7 +200,7 @@ EXT_C_FUNC ssize_t __dfsw_read(int fd, void *buff, size_t size,
 
   if (ret_val > 0) {
     
-    taint_manager->taintData(fd, (char *)buff, 0, ret_val);
+    taint_manager->taintData(fd, name, (char *)buff, 0, ret_val);
     // Debug output.
     std::cout << "Finished Tainting" << std::endl;
     // *ret_label = taint_manager->createReturnLabel(size, taint_manager->getTargetInfo(fd)->target_name);

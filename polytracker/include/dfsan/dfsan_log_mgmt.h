@@ -93,6 +93,7 @@ public:
   void output();
   dfsan_label getLastLabel();
   bool taintData(FILE *fd, char *mem, int offset, int len);
+  bool taintData(int fd, std::string name, char *mem, int offset, int len);
   bool taintData(int fd, char *mem, int offset, int len);
   dfsan_label createUnionLabel(dfsan_label l1, dfsan_label l2);
   dfsan_label createReturnLabel(int file_byte_offset, std::string name);

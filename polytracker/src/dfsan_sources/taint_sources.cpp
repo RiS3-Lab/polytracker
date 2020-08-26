@@ -195,6 +195,7 @@ EXT_C_FUNC ssize_t __dfsw_read(int fd, void *buff, size_t size,
   std::string name = ss.str();
 
   taint_manager->createNewTargetInfo(name, 0, size);
+  taint_manager->createNewTaintInfo(name, fd);
   // Debug output.
   std::cout << name << std::endl;
 

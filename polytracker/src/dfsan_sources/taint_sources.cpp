@@ -185,6 +185,13 @@ EXT_C_FUNC ssize_t __dfsw_read(int fd, void *buff, size_t size,
   // Debug test.
   printf("read: fd is %d, buffer addr is %p, size is %ld\n", fd, buff, size);
   std::cout << "Got a `read` call to instrument!" << std::endl;
+
+  int start_offset, end_offset;
+  std::cout << "The start offset is:" << std::endl;
+  std::cin >> start_offset;
+  std::cout << "The start offset is:" << std::endl;
+  std::cin >> end_offset;
+
   // The fname is random number.
   // int random = rand()%100;
   // std::string name = std::to_string(random);
@@ -194,13 +201,15 @@ EXT_C_FUNC ssize_t __dfsw_read(int fd, void *buff, size_t size,
   ss << buff;
   std::string name = ss.str();
 
-  taint_manager->createNewTargetInfo(name, 0, size);
+  // taint_manager->createNewTargetInfo(name, 0, size);
+  taint_manager->createNewTargetInfo(name, start_offset, end_offset);
   taint_manager->createNewTaintInfo(name, fd);
   // Debug output.
   // std::cout << name << std::endl;
 
   if (ret_val > 0) {
     
+    // taint_manager->taintData(fd, name, (char *)buff, 0, ret_val);
     taint_manager->taintData(fd, name, (char *)buff, 0, ret_val);
     // Debug output.
     std::cout << "Finished Tainting" << std::endl;

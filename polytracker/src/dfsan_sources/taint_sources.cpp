@@ -214,11 +214,14 @@ EXT_C_FUNC ssize_t __dfsw_read(int fd, void *buff, size_t size,
     // Debug output.
     std::cout << "Finished Tainting" << std::endl;
     *ret_label = taint_manager->createReturnLabel(size, taint_manager->getTargetInfo(fd)->target_name);
-    //Debug output
+    // Debug output
     std::cout << "Finished Return Lable Creating." << std::endl;
   }
   *ret_label = 0;
-
+  
+  // Create result files for each packet.
+  // dfsan_fini();
+  
   return ret_val;
 }
 

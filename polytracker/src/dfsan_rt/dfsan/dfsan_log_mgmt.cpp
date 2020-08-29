@@ -132,8 +132,17 @@ void taintManager::addJsonRuntimeCFG() {
 
 void taintManager::setOutputFilename(std::string out) { outfile = out; }
 
+// Modifed for Aloja
 void taintManager::outputRawTaintForest() {
   std::string forest_fname = outfile + "_forest.bin";
+
+  // Tongwei: Prevents previously generated bin files from being overwritten..
+  if (FILE *resultfile = fopen(forest_fname.c_str(), "r")) {
+    fclose(resultfile);
+    int random = rand()%100;
+    forest_fname = std::to_string(random) + forest_fname;
+  }
+
   FILE* forest_file = fopen(forest_fname.c_str(), "w");
   if (forest_file == NULL) {
     std::cout << "Failed to dump forest to file: " << forest_fname << std::endl;
@@ -191,6 +200,7 @@ void taintManager::addTaintedBlocks() {
   std::cout << "Get tainted_input_blocks." << std::endl;
 }
 
+// Modifed for Aloja
 void taintManager::outputRawTaintSets() {
   string_node_map::iterator it;
   // NOTE: Whenever the output JSON format changes, make sure to:
@@ -231,7 +241,7 @@ void taintManager::outputRawTaintSets() {
   //Debug output
   std::cout << "Start to write JSON file." << std::endl;
 
-  //Tongwei: Each packet generates one file.
+  //Tongwei: Prevents previously generated JSON files from being overwritten.
   if (FILE *resultfile = fopen(output_string.c_str(), "r")) {
     fclose(resultfile);
     int random = rand()%100;

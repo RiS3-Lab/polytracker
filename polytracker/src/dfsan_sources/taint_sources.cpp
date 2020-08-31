@@ -187,9 +187,9 @@ EXT_C_FUNC ssize_t __dfsw_read(int fd, void *buff, size_t size,
   std::cout << "Got a `read` call to instrument!" << std::endl;
 
   int start_offset, end_offset;
-  std::cout << "The start offset is:" << std::endl;
+  std::cout << "Start offset?" << std::endl;
   std::cin >> start_offset;
-  std::cout << "The start offset is:" << std::endl;
+  std::cout << "End offset?" << std::endl;
   std::cin >> end_offset;
 
   // The fname is random number.

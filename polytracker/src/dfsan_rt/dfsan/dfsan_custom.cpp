@@ -863,7 +863,7 @@ SANITIZER_INTERFACE_ATTRIBUTE void __dfsw_dfsan_set_write_callback(
   write_callback_info.write_callback = write_callback;
 }
 
-SANITIZER_INTERFACE_ATTRIBUTE int __dfsw_write(
+/*SANITIZER_INTERFACE_ATTRIBUTE int __dfsw_write(
     int fd, const void *buf, size_t count, dfsan_label fd_label,
     dfsan_label buf_label, dfsan_label count_label, dfsan_label *ret_label) {
   if (write_callback_info.write_callback) {
@@ -874,7 +874,8 @@ SANITIZER_INTERFACE_ATTRIBUTE int __dfsw_write(
 
   *ret_label = 0;
   return write(fd, buf, count);
-}
+}*/
+
 }  // namespace __dfsan
 
 // Type used to extract a dfsan_label with va_arg()

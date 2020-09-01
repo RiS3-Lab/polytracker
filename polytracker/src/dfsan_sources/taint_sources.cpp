@@ -180,15 +180,38 @@ EXT_C_FUNC ssize_t __dfsw_recv(int fd, void *buff, size_t size, int flags,
  * TODO: add function for handling whatever write-based
  * functions Mosquitto calls.
  **/
-
-EXT_C_FUNC ssize_t __dfsw_write(int fd, void *buff, size_t size) {
+EXT_C_FUNC ssize_t __dfsw_write(int fd, void *buff, size_t size,
+                                dfsan_label fd_label, dfsan_label buff_label,
+                                dfsan_label size_label, dfsan_label *ret_label) {
   ssize_t ret_val = write(fd, buff, size);
 
   // Debug test.
   printf("write: fd is %d, buffer addr is %p, size is %ld\n", fd, buff, size);
   std::cout << "Got a `write` call to instrument!" << std::endl;
 
-  // TODO.
+  int start_offset, end_offset;
+  std::cout << "Start offset? ";
+  std::cin >> start_offset;
+  std::cout << "End offset? ";
+  std::cin >> end_offset;
+
+  // The fname is buffer addr.
+  std::stringstream ss;
+  ss << buff;
+  std::string name = ss.str();
+
+  taint_manager->createNewTargetInfo(name, start_offset, end_offset);
+  taint_manager->createNewTaintInfo(name, fd);
+
+  if (ret_val > 0) {
+    taint_manager->taintData(fd, name, (char *)buff, 0, ret_val);
+    // Debug output.
+    std::cout << "Finished tainting." << std::endl;
+    *ret_label = taint_manager->createReturnLabel(size, taint_manager->getTargetInfo(fd)->target_name);
+    // Debug output.
+    std::cout << "Finished creating return label." << std::endl;
+  }
+  *ret_label = 0;
 
   return ret_val;
 }
@@ -244,10 +267,10 @@ EXT_C_FUNC ssize_t __dfsw_read(int fd, void *buff, size_t size,
     // taint_manager->taintData(fd, name, (char *)buff, 0, ret_val);
     taint_manager->taintData(fd, name, (char *)buff, 0, ret_val);
     // Debug output.
-    std::cout << "Finished Tainting" << std::endl;
+    std::cout << "Finished tainting." << std::endl;
     *ret_label = taint_manager->createReturnLabel(size, taint_manager->getTargetInfo(fd)->target_name);
     // Debug output
-    std::cout << "Finished Return Lable Creating." << std::endl;
+    std::cout << "Finished creating return label." << std::endl;
   }
   *ret_label = 0;
   

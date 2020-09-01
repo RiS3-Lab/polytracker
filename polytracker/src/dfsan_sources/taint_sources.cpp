@@ -181,6 +181,30 @@ EXT_C_FUNC ssize_t __dfsw_recv(int fd, void *buff, size_t size, int flags,
  * functions Mosquitto calls.
  **/
 
+EXT_C_FUNC ssize_t __dfsw_write(int fd, void *buff, size_t size) {
+  ssize_t ret_val = write(fd, buff, size);
+
+  // Debug test.
+  printf("write: fd is %d, buffer addr is %p, size is %ld\n", fd, buff, size);
+  std::cout << "Got a `write` call to instrument!" << std::endl;
+
+  // TODO.
+
+  return ret_val;
+}
+
+EXT_C_FUNC ssize_t __dfsw_send(int fd, void *buff, size_t size, int flags) {
+  ssize_t ret_val = send(fd, buff, size, flags);
+
+  // Debug test.
+  printf("send: fd is %d, buffer addr is %p, size is %ld\n", fd, buff, size);
+  std::cout << "Got a `send` call to instrument!" << std::endl;
+
+  // TODO.
+
+  return ret_val;
+}
+
 /**
  * This is the main part being used in Mosquitto
  * for getting parser-related functions.
@@ -217,7 +241,6 @@ EXT_C_FUNC ssize_t __dfsw_read(int fd, void *buff, size_t size,
   // std::cout << name << std::endl;
 
   if (ret_val > 0) {
-    
     // taint_manager->taintData(fd, name, (char *)buff, 0, ret_val);
     taint_manager->taintData(fd, name, (char *)buff, 0, ret_val);
     // Debug output.
@@ -230,7 +253,6 @@ EXT_C_FUNC ssize_t __dfsw_read(int fd, void *buff, size_t size,
   
   // Create result files for each packet.
   // dfsan_fini();
-  
   return ret_val;
 }
 

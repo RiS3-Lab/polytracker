@@ -42,6 +42,10 @@ fun:__getdelim=custom
 #Read-socket (aloja)
 fun:recv=uninstrumented
 fun:recv=custom
+fun:write=uninstrumented
+fun:write=custom
+fun:send=uninstrumented
+fun:send=custom
 
 #mmap stuff
 fun:mmap=custom

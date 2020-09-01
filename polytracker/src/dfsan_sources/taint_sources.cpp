@@ -176,6 +176,15 @@ EXT_C_FUNC ssize_t __dfsw_recv(int fd, void *buff, size_t size, int flags,
   return ret_val;
 }
 
+/**
+ * TODO: add function for handling whatever write-based
+ * functions Mosquitto calls.
+ **/
+
+/**
+ * This is the main part being used in Mosquitto
+ * for getting parser-related functions.
+ **/
 EXT_C_FUNC ssize_t __dfsw_read(int fd, void *buff, size_t size,
                                dfsan_label fd_label, dfsan_label buff_label,
                                dfsan_label size_label, dfsan_label *ret_label) {

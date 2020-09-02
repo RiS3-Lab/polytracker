@@ -180,9 +180,9 @@ EXT_C_FUNC ssize_t __dfsw_recv(int fd, void *buff, size_t size, int flags,
  * TODO: add function for handling whatever write-based
  * functions Mosquitto calls.
  **/
-EXT_C_FUNC ssize_t __dfsw_write(int fd, void *buff, size_t size,
-                                dfsan_label fd_label, dfsan_label buff_label,
-                                dfsan_label size_label, dfsan_label *ret_label) {
+EXT_C_FUNC ssize_t __dfsw_write(int fd, const void *buff, size_t size,
+                                dfsan_label fd_label, dfsan_label buf_label,
+                                dfsan_label count_label, dfsan_label *ret_label) {
   ssize_t ret_val = write(fd, buff, size);
 
   // Debug test.
@@ -216,7 +216,7 @@ EXT_C_FUNC ssize_t __dfsw_write(int fd, void *buff, size_t size,
   return ret_val;
 }
 
-EXT_C_FUNC ssize_t __dfsw_send(int fd, void *buff, size_t size, int flags,
+EXT_C_FUNC ssize_t __dfsw_send(int fd, const void *buff, size_t size, int flags,
                               dfsan_label fd_label, dfsan_label buff_label,
                               dfsan_label size_label, dfsan_label *ret_label) {
   ssize_t ret_val = send(fd, buff, size, flags);

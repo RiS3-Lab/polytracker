@@ -21,6 +21,8 @@
 // Imports for aloja.
 #include <sys/socket.h>
 #include <sstream>
+#include "../mosquitto/lib/mqtt_protocol.h"
+#include "../mosquitto/client/pub_client.c"
 // #include "../mosquitto/config.h"
 // #include "../mosquitto/lib/logging_mosq.h"
 // #include "../mosquitto/lib/memory_mosq.h"
@@ -300,6 +302,46 @@ EXT_C_FUNC ssize_t __dfsw_read(int fd, void *buff, size_t size,
   
   // Create result files for each packet.
   // dfsan_fini();
+  return ret_val;
+}
+
+/**
+ * This is used to taint mosq struct when it's created.
+ **/
+EXT_C_FUNC ssize_t __dfsw_get_mosq_address(struct mosquitto *mosq,
+                              dfsan_label fd_label, dfsan_label buff_label,
+                              dfsan_label size_label, dfsan_label *ret_label) {
+  ssize_t ret_val = 100;
+
+  // Debug test.
+  printf("get_mosq_address: %p\n", mosq);
+  std::cout << "Got a `send` call to instrument!" << std::endl;
+
+  int start_offset, end_offset;
+  std::cout << "Start offset? ";
+  std::cin >> start_offset;
+  std::cout << "End offset? ";
+  std::cin >> end_offset;
+
+  // The fname is mosq buffer addr.
+  std::stringstream ss;
+  ss << mosq;
+  std::string name = ss.str();
+  int fd = 100;
+
+  taint_manager->createNewTargetInfo(name, start_offset, end_offset);
+  taint_manager->createNewTaintInfo(name, fd);
+
+  if (ret_val > 0) {
+    taint_manager->taintData(fd, name, (char *)mosq, 0, ret_val);
+    // Debug output.
+    std::cout << "Finished tainting." << std::endl;
+    *ret_label = taint_manager->createReturnLabel(100, taint_manager->getTargetInfo(fd)->target_name);
+    // Debug output.
+    std::cout << "Finished creating return label." << std::endl;
+  }
+  *ret_label = 0;
+
   return ret_val;
 }
 

@@ -309,7 +309,7 @@ EXT_C_FUNC ssize_t __dfsw_read(int fd, void *buff, size_t size,
     std::cout << "Finished creating return label." << std::endl;
   }
 
-  
+
   try
   {
     *ret_label = 0;
@@ -332,17 +332,16 @@ EXT_C_FUNC ssize_t __dfsw_read(int fd, void *buff, size_t size,
 EXT_C_FUNC void __dfsw_get_mosq_address(struct mosquitto *mosq,
                               dfsan_label fd_label, dfsan_label buff_label,
                               dfsan_label size_label, dfsan_label *ret_label) {
-  ssize_t ret_val = 100;
+  ssize_t ret_val = sizeof(mosq);
+  // ssize_t ret_val = sizeof(*mosq);
+  // ssize_t ret_val = sizeof(struct mosquitto);
 
   // Debug test.
-  printf("get_mosq_address: %p\n", mosq);
+  printf("get_mosq_address: %p; the mosq size is: %d\n", mosq, ret_val);
   std::cout << "Got a mosq to instrument!" << std::endl;
 
-  int start_offset, end_offset;
-  std::cout << "Start offset? ";
-  std::cin >> start_offset;
-  std::cout << "End offset? ";
-  std::cin >> end_offset;
+  int start_offset = 0;
+  int end_offset = ret_val - 1;
 
   // The fname is mosq buffer addr.
   std::stringstream ss;
@@ -357,11 +356,25 @@ EXT_C_FUNC void __dfsw_get_mosq_address(struct mosquitto *mosq,
     taint_manager->taintData(fd, name, (char *)mosq, 0, ret_val);
     // Debug output.
     std::cout << "Finished tainting." << std::endl;
-    *ret_label = taint_manager->createReturnLabel(100, taint_manager->getTargetInfo(fd)->target_name);
+    try
+    {
+      *ret_label = taint_manager->createReturnLabel(ret_val, taint_manager->getTargetInfo(fd)->target_name);
+    }
+    catch(const std::exception& e)
+    {
+      std::cerr << e.what() << '\n';
+    }
     // Debug output.
     std::cout << "Finished creating return label." << std::endl;
   }
-  *ret_label = 0;
+  try
+  {
+    *ret_label = 0;
+  }
+  catch(const std::exception& e)
+  {
+    std::cerr << e.what() << '\n';
+  }
 }
 
 // EXT_C_FUNC ssize_t __dfsw_net__read(struct mosquitto *mosq, void *buff, size_t size,

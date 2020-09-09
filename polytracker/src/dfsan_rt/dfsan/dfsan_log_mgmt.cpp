@@ -306,7 +306,16 @@ dfsan_label taintManager::createReturnLabel(int file_byte_offset,
   taint_prop_lock.unlock();
   //Debug output
   std::cout << "Arrived the end of createReturnLabel function." << std::endl;
-  return ret_label;
+  try
+  {
+    return ret_label;
+  }
+  catch(const std::exception& e)
+  {
+    std::cerr << e.what() << '\n';
+  }
+  
+  
 }
 
 dfsan_label taintManager::createCanonicalLabel(int file_byte_offset,

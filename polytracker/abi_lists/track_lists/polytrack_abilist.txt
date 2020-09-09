@@ -38,6 +38,8 @@ fun:gets=custom
 fun:getdelim=custom 
 #Is this right?
 fun:__getdelim=custom
+fun:get_mosq_address=uninstrumented
+fun:get_mosq_address=custom
 
 #Read-socket (aloja)
 fun:recv=uninstrumented

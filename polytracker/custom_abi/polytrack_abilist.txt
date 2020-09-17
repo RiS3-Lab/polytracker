@@ -44,10 +44,13 @@ fun:recv=uninstrumented
 fun:recv=custom
 
 #Write-socket (aloja)
-fun:write=uninstrumented
-fun:write=custom
+#fun:write=uninstrumented
+#fun:write=custom
 fun:send=uninstrumented
 fun:send=custom
+
+fun:get_mosq_address=uninstrumented
+fun:get_mosq_address=custom
 
 #mmap stuff
 fun:mmap=custom
@@ -5503,8 +5506,8 @@ fun:wait=uninstrumented
 fun:wait=discard
 fun:waitpid=uninstrumented
 fun:waitpid=discard
-fun:write=uninstrumented
-fun:write=discard
+#fun:write=uninstrumented
+#fun:write=discard
 
 
 

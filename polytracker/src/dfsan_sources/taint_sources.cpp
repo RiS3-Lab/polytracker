@@ -327,29 +327,38 @@ EXT_C_FUNC ssize_t __dfsw_read(int fd, void *buff, size_t size,
 }
 
 /**
- * This is used to taint mosq struct when it's created.
+ * This is used to taint mosq struct when it's created. (WIP).
  **/
 EXT_C_FUNC void __dfsw_get_mosq_address(struct mosquitto *mosq,
                               dfsan_label fd_label, dfsan_label buff_label,
                               dfsan_label size_label, dfsan_label *ret_label) {
   ssize_t ret_val = sizeof(mosq);
-  // ssize_t ret_val = sizeof(*mosq);
-  // ssize_t ret_val = sizeof(struct mosquitto);
 
-  // Debug test.
-  printf("get_mosq_address: %p; the mosq size is: %d\n", mosq, ret_val);
-  std::cout << "Got a mosq to instrument!" << std::endl;
+  //void* ret = get_mosq_address(mosq);
+  std::cout << "TEST ADDR: " << &mosq << " SIZE: " << ret_val << std::endl;
 
   int start_offset = 0;
   int end_offset = ret_val - 1;
 
   // The fname is mosq buffer addr.
   std::stringstream ss;
-  ss << mosq;
+  ss << &mosq;
   std::string name = ss.str();
   int fd = 15;
 
   taint_manager->createNewTargetInfo(name, start_offset, end_offset);
+  taint_manager->createNewTaintInfo(name, fd);
+
+  if (ret_val > 0 && taint_manager->isTracking(fd)) {
+    taint_manager->taintData(fd, name, (char *) mosq, 0, ret_val);
+    std::cout << "Finished tainting." << std::endl;
+  }
+
+  //*ret_label = 0;
+  
+  //return ret;
+
+  /*taint_manager->createNewTargetInfo(name, start_offset, end_offset);
   taint_manager->createNewTaintInfo(name, fd);
 
   if (ret_val > 0) {
@@ -374,7 +383,8 @@ EXT_C_FUNC void __dfsw_get_mosq_address(struct mosquitto *mosq,
   catch(const std::exception& e)
   {
     std::cerr << e.what() << '\n';
-  }
+  }*/
+
 }
 
 // EXT_C_FUNC ssize_t __dfsw_net__read(struct mosquitto *mosq, void *buff, size_t size,

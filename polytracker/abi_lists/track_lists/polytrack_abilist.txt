@@ -5506,8 +5506,8 @@ fun:wait=uninstrumented
 fun:wait=discard
 fun:waitpid=uninstrumented
 fun:waitpid=discard
-fun:write=uninstrumented
-fun:write=discard
+#fun:write=uninstrumented
+#fun:write=discard
 
 
 

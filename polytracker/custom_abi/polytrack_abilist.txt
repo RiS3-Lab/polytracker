@@ -51,6 +51,8 @@ fun:send=custom
 
 fun:get_mosq_address=uninstrumented
 fun:get_mosq_address=custom
+fun:get_cfg_address=uninstrumented
+fun:get_cfg_address=custom
 
 #mmap stuff
 fun:mmap=custom

@@ -46,8 +46,8 @@ fun:recv=custom
 #Write-socket (aloja)
 #fun:write=uninstrumented
 #fun:write=custom
-fun:send=uninstrumented
-fun:send=custom
+#fun:send=uninstrumented
+#fun:send=custom
 
 fun:get_mosq_address=uninstrumented
 fun:get_mosq_address=custom

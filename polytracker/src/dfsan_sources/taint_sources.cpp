@@ -193,11 +193,12 @@ EXT_C_FUNC ssize_t __dfsw_write(int fd, const void *buff, size_t size,
   printf("write: fd is %d, buffer addr is %p, size is %ld\n", fd, buff, size);
   std::cout << "Got a `write` call to instrument!" << std::endl;
 
-  int start_offset, end_offset;
-  std::cout << "Start offset? ";
+  int start_offset = 0, end_offset = size - 1;
+
+  /*std::cout << "Start offset? ";
   std::cin >> start_offset;
   std::cout << "End offset? ";
-  std::cin >> end_offset;
+  std::cin >> end_offset;*/
 
   // The fname is buffer addr.
   std::stringstream ss;
@@ -270,11 +271,12 @@ EXT_C_FUNC ssize_t __dfsw_read(int fd, void *buff, size_t size,
   printf("read: fd is %d, buffer addr is %p, size is %ld\n", fd, buff, size);
   std::cout << "Got a `read` call to instrument!" << std::endl;
 
-  int start_offset, end_offset;
-  std::cout << "Start offset? ";
+  int start_offset = 0, end_offset = size - 1;
+  
+  /*std::cout << "Start offset? ";
   std::cin >> start_offset;
   std::cout << "End offset? ";
-  std::cin >> end_offset;
+  std::cin >> end_offset;*/
 
   // The fname is random number.
   // int random = rand()%100;

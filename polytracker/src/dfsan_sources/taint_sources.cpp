@@ -330,7 +330,7 @@ EXT_C_FUNC ssize_t __dfsw_read(int fd, void *buff, size_t size,
 EXT_C_FUNC void __dfsw_get_mosq_address(struct mosquitto *mosq,
                               dfsan_label fd_label, dfsan_label buff_label,
                               dfsan_label size_label, dfsan_label *ret_label) {
-  ssize_t ret_val = sizeof(mosq);
+  ssize_t ret_val = sizeof(*mosq);
 
   //void* ret = get_mosq_address(mosq);
   std::cout << "TEST ADDR: " << &mosq << " SIZE: " << ret_val << std::endl;

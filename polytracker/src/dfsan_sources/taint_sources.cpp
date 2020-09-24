@@ -210,13 +210,11 @@ EXT_C_FUNC ssize_t __dfsw_write(int fd, const void *buff, size_t size,
 
   if (ret_val > 0) {
     taint_manager->taintData(fd, name, (char *)buff, 0, ret_val);
-    // Debug output.
-    std::cout << "Finished tainting." << std::endl;
     *ret_label = taint_manager->createReturnLabel(size, taint_manager->getTargetInfo(fd)->target_name);
-    // Debug output.
-    std::cout << "Finished creating return label." << std::endl;
   }
   *ret_label = 0;
+
+  std::cout << "Instrumented `write` function." << std::endl;
 
   return ret_val;
 }
@@ -246,13 +244,11 @@ EXT_C_FUNC ssize_t __dfsw_send(int fd, const void *buff, size_t size, int flags,
 
   if (ret_val > 0) {
     taint_manager->taintData(fd, name, (char *)buff, 0, ret_val);
-    // Debug output.
-    std::cout << "Finished tainting." << std::endl;
     *ret_label = taint_manager->createReturnLabel(size, taint_manager->getTargetInfo(fd)->target_name);
-    // Debug output.
-    std::cout << "Finished creating return label." << std::endl;
   }
   *ret_label = 0;
+
+  std::cout << "Instrumented `send` function." << std::endl;
 
   return ret_val;
 }
@@ -334,7 +330,7 @@ EXT_C_FUNC ssize_t __dfsw_read(int fd, void *buff, size_t size,
 EXT_C_FUNC void __dfsw_get_mosq_address(struct mosquitto *mosq,
                               dfsan_label fd_label, dfsan_label buff_label,
                               dfsan_label size_label, dfsan_label *ret_label) {
-  ssize_t ret_val = sizeof(*mosq);
+  ssize_t ret_val = sizeof(mosq);
 
   //void* ret = get_mosq_address(mosq);
   std::cout << "TEST ADDR: " << &mosq << " SIZE: " << ret_val << std::endl;
